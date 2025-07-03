@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Decision System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .domain-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .domain-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .domain-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .domain-card.active {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .domain-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .domain-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .questionnaire {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+
+        .questionnaire.active {
+            display: block;
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .question select,
+        .question input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .question select:focus,
+        .question input[type="number"]:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .results {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 5px solid #0ea5e9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .recommendation h3 {
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+
+        .factors {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .factors h4 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .factors ul {
+            list-style: none;
+        }
+
+        .factors li {
+            padding: 5px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .factors li:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .domain-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Expert Decision System</h1>
+            <p>Intelligent decision support for Transport, Education, Finance & Healthcare</p>
+        </div>
+
+        <div class="main-content">
+            <div class="domain-selector">
+                <div class="domain-card" onclick="selectDomain('transport')">
+                    <div class="icon">🚗</div>
+                    <h3>Transport</h3>
+                    <p>Choose the best transportation option</p>
+                </div>
+                <div class="domain-card" onclick="selectDomain('education')">
+                    <div class="icon">🎓</div>
+                    <h3>Education</h3>
+                    <p>Find the right educational path</p>
+                </div>
+                <div class="domain-card" onclick="selectDomain('finance')">
+                    <div class="icon">💰</div>
+                    <h3>Finance</h3>
+                    <p>Make smart financial decisions</p>
+                </div>
+                <div class="domain-card" onclick="selectDomain('healthcare')">
+                    <div class="icon">🏥</div>
+                    <h3>Healthcare</h3>
+                    <p>Get healthcare recommendations</p>
+                </div>
+            </div>
+
+            <!-- Transport Questionnaire -->
+            <div id="transport-form" class="questionnaire">
+                <h2>🚗 Transport Decision Assistant</h2>
+                <div class="question">
+                    <label>What is your primary purpose for transportation?</label>
+                    <select id="transport-purpose">
+                        <option value="">Select purpose</option>
+                        <option value="daily-commute">Daily commute to work/school</option>
+                        <option value="occasional-travel">Occasional travel</option>
+                        <option value="business-travel">Business travel</option>
+                        <option value="leisure">Leisure/recreational</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your typical distance per trip?</label>
+                    <select id="transport-distance">
+                        <option value="">Select distance</option>
+                        <option value="short">Short (< 5 km)</option>
+                        <option value="medium">Medium (5-20 km)</option>
+                        <option value="long">Long (20-100 km)</option>
+                        <option value="very-long">Very long (> 100 km)</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your monthly transport budget?</label>
+                    <input type="number" id="transport-budget" placeholder="Enter amount in your currency">
+                </div>
+                <div class="question">
+                    <label>How important is environmental impact to you?</label>
+                    <select id="transport-environment">
+                        <option value="">Select importance</option>
+                        <option value="very-important">Very important</option>
+                        <option value="somewhat-important">Somewhat important</option>
+                        <option value="not-important">Not important</option>
+                    </select>
+                </div>
+                <button class="analyze-btn" onclick="analyzeTransport()">Get Transport Recommendation</button>
+            </div>
+
+            <!-- Education Questionnaire -->
+            <div id="education-form" class="questionnaire">
+                <h2>🎓 Education Decision Assistant</h2>
+                <div class="question">
+                    <label>What is your current education level?</label>
+                    <select id="education-level">
+                        <option value="">Select level</option>
+                        <option value="high-school">High school graduate</option>
+                        <option value="bachelor">Bachelor's degree</option>
+                        <option value="master">Master's degree</option>
+                        <option value="professional">Professional experience</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your career goal?</label>
+                    <select id="education-goal">
+                        <option value="">Select goal</option>
+                        <option value="career-change">Career change</option>
+                        <option value="skill-upgrade">Skill upgrade</option>
+                        <option value="academic-advancement">Academic advancement</option>
+                        <option value="entrepreneurship">Entrepreneurship</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your available time commitment?</label>
+                    <select id="education-time">
+                        <option value="">Select time commitment</option>
+                        <option value="full-time">Full-time study</option>
+                        <option value="part-time">Part-time study</option>
+                        <option value="flexible">Flexible/self-paced</option>
+                        <option value="weekend">Weekend only</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your education budget?</label>
+                    <input type="number" id="education-budget" placeholder="Enter amount in your currency">
+                </div>
+                <button class="analyze-btn" onclick="analyzeEducation()">Get Education Recommendation</button>
+            </div>
+
+            <!-- Finance Questionnaire -->
+            <div id="finance-form" class="questionnaire">
+                <h2>💰 Finance Decision Assistant</h2>
+                <div class="question">
+                    <label>What is your primary financial goal?</label>
+                    <select id="finance-goal">
+                        <option value="">Select goal</option>
+                        <option value="emergency-fund">Build emergency fund</option>
+                        <option value="investment">Investment growth</option>
+                        <option value="retirement">Retirement planning</option>
+                        <option value="debt-reduction">Debt reduction</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your risk tolerance?</label>
+                    <select id="finance-risk">
+                        <option value="">Select risk level</option>
+                        <option value="conservative">Conservative (low risk)</option>
+                        <option value="moderate">Moderate (balanced)</option>
+                        <option value="aggressive">Aggressive (high risk)</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your investment timeline?</label>
+                    <select id="finance-timeline">
+                        <option value="">Select timeline</option>
+                        <option value="short">Short-term (< 2 years)</option>
+                        <option value="medium">Medium-term (2-5 years)</option>
+                        <option value="long">Long-term (> 5 years)</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your monthly investment capacity?</label>
+                    <input type="number" id="finance-amount" placeholder="Enter amount in your currency">
+                </div>
+                <button class="analyze-btn" onclick="analyzeFinance()">Get Finance Recommendation</button>
+            </div>
+
+            <!-- Healthcare Questionnaire -->
+            <div id="healthcare-form" class="questionnaire">
+                <h2>🏥 Healthcare Decision Assistant</h2>
+                <div class="question">
+                    <label>What is your age group?</label>
+                    <select id="healthcare-age">
+                        <option value="">Select age group</option>
+                        <option value="young">18-30 years</option>
+                        <option value="adult">31-50 years</option>
+                        <option value="middle">51-65 years</option>
+                        <option value="senior">65+ years</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your primary health concern?</label>
+                    <select id="healthcare-concern">
+                        <option value="">Select concern</option>
+                        <option value="preventive">Preventive care</option>
+                        <option value="chronic">Chronic condition management</option>
+                        <option value="fitness">Fitness and wellness</option>
+                        <option value="mental-health">Mental health support</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your activity level?</label>
+                    <select id="healthcare-activity">
+                        <option value="">Select activity level</option>
+                        <option value="sedentary">Sedentary (little exercise)</option>
+                        <option value="light">Light activity</option>
+                        <option value="moderate">Moderate activity</option>
+                        <option value="high">High activity</option>
+                    </select>
+                </div>
+                <div class="question">
+                    <label>What is your healthcare budget preference?</label>
+                    <select id="healthcare-budget">
+                        <option value="">Select budget</option>
+                        <option value="minimal">Minimal cost</option>
+                        <option value="moderate">Moderate investment</option>
+                        <option value="premium">Premium care</option>
+                    </select>
+                </div>
+                <button class="analyze-btn" onclick="analyzeHealthcare()">Get Healthcare Recommendation</button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="results">
+                <h2>📊 Recommendation Results</h2>
+                <div id="recommendation-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDomain = '';
+
+        function selectDomain(domain) {
+            // Reset all cards
+            document.querySelectorAll('.domain-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Hide all questionnaires
+            document.querySelectorAll('.questionnaire').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            // Hide results
+            document.getElementById('results').classList.remove('active');
+            
+            // Activate selected domain
+            event.target.closest('.domain-card').classList.add('active');
+            document.getElementById(domain + '-form').classList.add('active');
+            
+            currentDomain = domain;
+        }
+
+        function analyzeTransport() {
+            const purpose = document.getElementById('transport-purpose').value;
+            const distance = document.getElementById('transport-distance').value;
+            const budget = document.getElementById('transport-budget').value;
+            const environment = document.getElementById('transport-environment').value;
+
+            if (!purpose || !distance || !budget || !environment) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            let recommendation = '';
+            let factors = [];
+
+            // Expert system logic for transport
+            if (distance === 'short' && environment === 'very-important') {
+                recommendation = 'Bicycle or Electric Scooter';
+                factors = [
+                    'Short distance makes cycling viable',
+                    'Environmental impact is minimized',
+                    'Low operating costs',
+                    'Health benefits from physical activity'
+                ];
+            } else if (distance === 'medium' && budget < 500) {
+                recommendation = 'Public Transportation';
+                factors = [
+                    'Cost-effective for medium distances',
+                    'Reduced environmental impact',
+                    'No maintenance costs',
+                    'Reliable for daily commuting'
+                ];
+            } else if (distance === 'long' || distance === 'very-long') {
+                recommendation = 'Personal Vehicle or Train';
+                factors = [
+                    'Long distances require efficient transport',
+                    'Flexibility for business travel',
+                    'Train option for environmental concerns',
+                    'Personal vehicle for maximum flexibility'
+                ];
+            } else if (budget > 1000 && environment === 'very-important') {
+                recommendation = 'Electric Vehicle';
+                factors = [
+                    'Higher budget allows for EV investment',
+                    'Zero emissions during operation',
+                    'Lower long-term operating costs',
+                    'Modern technology features'
+                ];
+            } else {
+                recommendation = 'Hybrid Vehicle';
+                factors = [
+                    'Balanced approach to cost and environment',
+                    'Fuel efficiency benefits',
+                    'Suitable for varied distances',
+                    'Moderate environmental impact'
+                ];
+            }
+
+            displayResults('Transport', recommendation, factors);
+        }
+
+        function analyzeEducation() {
+            const level = document.getElementById('education-level').value;
+            const goal = document.getElementById('education-goal').value;
+            const time = document.getElementById('education-time').value;
+            const budget = document.getElementById('education-budget').value;
+
+            if (!level || !goal || !time || !budget) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            let recommendation = '';
+            let factors = [];
+
+            // Expert system logic for education
+            if (goal === 'skill-upgrade' && time === 'flexible') {
+                recommendation = 'Online Courses & Certifications';
+                factors = [
+                    'Flexible scheduling for working professionals',
+                    'Cost-effective skill development',
+                    'Industry-recognized certifications',
+                    'Self-paced learning approach'
+                ];
+            } else if (goal === 'career-change' && level === 'bachelor') {
+                recommendation = 'Professional Master\'s Program';
+                factors = [
+                    'Career transition support',
+                    'Advanced degree for new field',
+                    'Networking opportunities',
+                    'Structured curriculum'
+                ];
+            } else if (budget < 5000 && time === 'part-time') {
+                recommendation = 'Community College or Trade School';
+                factors = [
+                    'Affordable education option',
+                    'Practical skill development',
+                    'Part-time schedule compatibility',
+                    'Job placement assistance'
+                ];
+            } else if (goal === 'academic-advancement' && time === 'full-time') {
+                recommendation = 'Graduate Degree Program';
+                factors = [
+                    'Research opportunities',
+                    'Academic career preparation',
+                    'Full-time dedication benefits',
+                    'Advanced knowledge development'
+                ];
+            } else {
+                recommendation = 'Professional Development Workshops';
+                factors = [
+                    'Targeted skill enhancement',
+                    'Networking with professionals',
+                    'Short-term time commitment',
+                    'Immediate application to work'
+                ];
+            }
+
+            displayResults('Education', recommendation, factors);
+        }
+
+        function analyzeFinance() {
+            const goal = document.getElementById('finance-goal').value;
+            const risk = document.getElementById('finance-risk').value;
+            const timeline = document.getElementById('finance-timeline').value;
+            const amount = document.getElementById('finance-amount').value;
+
+            if (!goal || !risk || !timeline || !amount) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            let recommendation = '';
+            let factors = [];
+
+            // Expert system logic for finance
+            if (goal === 'emergency-fund' && risk === 'conservative') {
+                recommendation = 'High-Yield Savings Account';
+                factors = [
+                    'Immediate liquidity for emergencies',
+                    'FDIC insured protection',
+                    'Steady, low-risk returns',
+                    'No market volatility exposure'
+                ];
+            } else if (goal === 'investment' && risk === 'aggressive' && timeline === 'long') {
+                recommendation = 'Stock Market Index Funds';
+                factors = [
+                    'Long-term growth potential',
+                    'Diversified market exposure',
+                    'Higher risk tolerance suitable',
+                    'Compound interest benefits'
+                ];
+            } else if (goal === 'retirement' && timeline === 'long') {
+                recommendation = '401(k) or IRA with Balanced Portfolio';
+                factors = [
+                    'Tax advantages for retirement',
+                    'Long-term wealth building',
+                    'Balanced risk approach',
+                    'Employer matching benefits'
+                ];
+            } else if (goal === 'debt-reduction') {
+                recommendation = 'Debt Consolidation Strategy';
+                factors = [
+                    'Lower interest rates',
+                    'Simplified payment structure',
+                    'Faster debt elimination',
+                    'Improved credit score potential'
+                ];
+            } else {
+                recommendation = 'Balanced Mutual Funds';
+                factors = [
+                    'Professional management',
+                    'Diversified investment approach',
+                    'Moderate risk level',
+                    'Suitable for most timelines'
+                ];
+            }
+
+            displayResults('Finance', recommendation, factors);
+        }
+
+        function analyzeHealthcare() {
+            const age = document.getElementById('healthcare-age').value;
+            const concern = document.getElementById('healthcare-concern').value;
+            const activity = document.getElementById('healthcare-activity').value;
+            const budget = document.getElementById('healthcare-budget').value;
+
+            if (!age || !concern || !activity || !budget) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            let recommendation = '';
+            let factors = [];
+
+            // Expert system logic for healthcare
+            if (concern === 'preventive' && age === 'young') {
+                recommendation = 'Basic Health Plan with Wellness Focus';
+                factors = [
+                    'Preventive care coverage',
+                    'Annual health screenings',
+                    'Vaccination support',
+                    'Health education resources'
+                ];
+            } else if (concern === 'chronic' && budget === 'premium') {
+                recommendation = 'Comprehensive Health Management Plan';
+                factors = [
+                    'Specialist care coverage',
+                    'Chronic disease management',
+                    'Prescription drug coverage',
+                    'Care coordination services'
+                ];
+            } else if (concern === 'fitness' && activity === 'high') {
+                recommendation = 'Sports Medicine & Fitness Plan';
+                factors = [
+                    'Sports injury coverage',
+                    'Physical therapy benefits',
+                    'Nutrition counseling',
+                    'Fitness program discounts'
+                ];
+            } else if (concern === 'mental-health' && budget === 'moderate') {
+                recommendation = 'Mental Health Support Plan';
+                factors = [
+                    'Counseling services coverage',
+                    'Stress management programs',
+                    'Mental wellness resources',
+                    'Crisis support services'
+                ];
+            } else if (age === 'senior' && budget === 'premium') {
+                recommendation = 'Senior Comprehensive Care Plan';
+                factors = [
+                    'Geriatric care specialists',
+                    'Medication management',
+                    'Home health services',
+                    'Emergency response systems'
+                ];
+            } else {
+                recommendation = 'Standard Health Insurance Plan';
+                factors = [
+                    'Basic medical coverage',
+                    'Emergency care protection',
+                    'Routine check-up coverage',
+                    'Prescription drug benefits'
+                ];
+            }
+
+            displayResults('Healthcare', recommendation, factors);
+        }
+
+        function displayResults(domain, recommendation, factors) {
+            const content = `
+                <div class="recommendation">
+                    <h3>🎯 Recommended Solution</h3>
+                    <p><strong>${recommendation}</strong></p>
+                </div>
+                
+                <div class="factors">
+                    <h4>📋 Key Factors Considered</h4>
+                    <ul>
+                        ${factors.map(factor => `<li>• ${factor}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="factors">
+                    <h4>💡 Next Steps</h4>
+                    <ul>
+                        <li>• Research specific providers in your area</li>
+                        <li>• Compare costs and features</li>
+                        <li>• Consult with professionals if needed</li>
+                        <li>• Consider your specific circumstances</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('recommendation-content').innerHTML = content;
+            document.getElementById('results').classList.add('active');
+        }
+    </script>
+</body>
+</html>
