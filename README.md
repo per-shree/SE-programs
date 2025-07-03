@@ -2,10 +2,10 @@
 
 ## 📘 Overview
 
-This repository contains the source code and documentation for a Second Year Artificial Intelligence and Data Science (SE AI & DS) academic project at [Your College/University Name]. The project was developed as part of the [Course Name] curriculum.
+This repository contains the source code and documentation for a Second Year Artificial Intelligence and Data Science (SE AI & DS) academic project at Amrutvahini College of engineering The project was developed as part of the curriculum.
 
 **Domain:** Artificial Intelligence / Data Science / Machine Learning  
-**Semester:** Semester [1]  
+**Semester:** Semester 1  
 **Year:** Second Year (SE)
 
 ## 💡 Project Description
