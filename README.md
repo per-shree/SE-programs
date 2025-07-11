@@ -1,4 +1,4 @@
-# SE AI & DS Project – [Project Title]
+# SE AI & DS Project
 
 ## 📘 Overview
 
